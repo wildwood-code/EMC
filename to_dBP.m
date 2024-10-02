@@ -5,3 +5,5 @@ function dB = to_dBP(p)
 % See also: TO_DB  TO_DBRP
 
 dB = 10*log10(abs(p));
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

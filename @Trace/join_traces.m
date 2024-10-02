@@ -24,3 +24,5 @@ else
     freq = [freq1; freq2];
     data = [data1; data2];
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

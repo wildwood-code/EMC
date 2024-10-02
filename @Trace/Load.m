@@ -87,3 +87,5 @@ obj.det = det;
 obj.notes = note;
 obj.x = Xacc;
 obj.y = Yacc;
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

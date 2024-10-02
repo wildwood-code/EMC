@@ -114,3 +114,5 @@ classdef TD_Signal
     end % methods(Static)
     
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

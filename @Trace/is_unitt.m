@@ -43,3 +43,5 @@ if nargout<2
 elseif nargout<3
     clear scale
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

@@ -31,3 +31,5 @@ end
 if nargout==0
     clear h
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

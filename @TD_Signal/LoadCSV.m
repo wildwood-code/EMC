@@ -45,3 +45,5 @@ else
     
     obj = EMC.TD_Signal(time, data);
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

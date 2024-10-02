@@ -22,3 +22,5 @@ if isa(obj1, 'EMC.Trace')
 else
     throw(MException('EMC:Trace:Compare', 'Meets is used to compare a Trace to a Limit'))
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

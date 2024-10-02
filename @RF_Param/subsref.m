@@ -33,3 +33,5 @@ switch S(1).type
         [varargout{1:nargout}] = builtin('subsref',obj, S);
 end
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

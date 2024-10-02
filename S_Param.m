@@ -58,7 +58,7 @@ classdef S_Param < EMC.RF_Param
 
         %-----------------------------------
         % Convert to Mixed-Mode form
-        function [SM_SDD,SDC,SCD,SCC] = ConvertToMixedMode(obj)
+        function [SM_SDD,SDC,SCD,SCC] = ConvertToMixedMode(obj, is_legacy)
             % CONVERTTOMIXEDMODE Convert 4-port S-parameters to Mixed-mode S-parameters
             %   SM = obj.ConvertToMixedMode                 % extract 4-port SM
             %   [SDD,SDC,SCD,SCC] = obj.ConvertToMixedMode  % extract all 4 2-port Sxy
@@ -72,6 +72,11 @@ classdef S_Param < EMC.RF_Param
             %     Port1 - Port2 <==NETWORK==> Port3 - Port4
             %
             %   The output S-parameters SM take the form:
+            %      [ Sdd11 Sdd12 Sdc11 Sdc12;
+            %        Sdd21 Sdd22 Sdc21 Sdc22;
+            %        Scd11 Scd12 Scc11 Scc12;
+            %        Scd21 Scd22 Scc21 Scc22 ]
+			%   The output S-parameters SM take the form (if is_legacy is true):
             %      [ Sdd11 Sdc11 Sdd12 Sdc12;
             %        Scd11 Scc11 Scd12 Scc12;
             %        Sdd21 Sdc21 Sdd22 Sdc22;
@@ -87,11 +92,20 @@ classdef S_Param < EMC.RF_Param
             %   specified. The order is [SDD, SDC, SCD, SCC]. If only SDD
             %   is needed, specify a second unused output [SDD,~].
             %
+			if nargin<2
+				is_legacy = false;
+			end
             if obj.nPorts ~= 4
                 error('This is only defined for 4-port S-parameters')
             end
-            
-            M = [1 -1 0 0;1 1 0 0;0 0 1 -1;0 0 1 1]/sqrt(2);
+			
+			if is_legacy
+				% note, that the sqrt(2) is totally unnecessary (it divides out in the conversion)
+				% I have only left it here as the original source included it
+				M = [1 -1 0 0;1 1 0 0;0 0 1 -1;0 0 1 1]/sqrt(2);
+			else
+				M = [1 -1 0 0; 0 0 1 -1; 1 1 0 0; 0 0 1 1];
+			end
             
             SM = EMC.S_Param(obj.Freq, obj.Data, obj.Impedance, obj.UnitF, obj.Unit);
             
@@ -102,7 +116,7 @@ classdef S_Param < EMC.RF_Param
             if nargout<2
                 % full 4-port mixed-mode S-parameters
                 SM_SDD = SM;
-            else
+            elseif is_legacy
                 % extract the 2-port mixed-mode S-parameters
                 SM_SDD = EMC.S_Param(SM.Freq,SM.Data([1 3],[1 3],:),SM.Impedance,SM.UnitF,SM.Unit);
                 SDC = EMC.S_Param(SM.Freq,SM.Data([1 3],[2 4],:),SM.Impedance,SM.UnitF,SM.Unit);
@@ -112,6 +126,16 @@ classdef S_Param < EMC.RF_Param
                 if nargout==4
                     SCC = EMC.S_Param(SM.Freq,SM.Data([2 4],[2 4],:),SM.Impedance,SM.UnitF,SM.Unit);
                 end
+			else
+                % extract the 2-port mixed-mode S-parameters
+                SM_SDD = EMC.S_Param(SM.Freq,SM.Data([1 2],[1 2],:),SM.Impedance,SM.UnitF,SM.Unit);
+                SDC = EMC.S_Param(SM.Freq,SM.Data([1 2],[3 4],:),SM.Impedance,SM.UnitF,SM.Unit);
+                if nargout>=3
+                    SCD = EMC.S_Param(SM.Freq,SM.Data([3 4],[1 2],:),SM.Impedance,SM.UnitF,SM.Unit);
+                end
+                if nargout==4
+                    SCC = EMC.S_Param(SM.Freq,SM.Data([3 4],[3 4],:),SM.Impedance,SM.UnitF,SM.Unit);
+                end		
             end
         end
         
@@ -119,4 +143,4 @@ classdef S_Param < EMC.RF_Param
 
 end
 
-% Copyright (c) 2018, Kerry S. Martin, martin@wild-wood.net
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

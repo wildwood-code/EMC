@@ -10,7 +10,8 @@ function [obj, Sdc, Scd, Scc] = Convert(obj, varargin)
 %     Z is a positive, real scalar
 %
 %   Convert to mixed-mode S-parameters:
-%     obj = obj.Convert('mixed')
+%     obj = obj.Convert('mixed')             [ [Sdd], [Sdc]; [Scd], [Scc] ] order where [Sij] = [ M11, M12; M21, M22 ]
+%     obj = obj.Convert('mixed', 'legacy')   [ [M11], [M12]; [M21], [M22] ] order where [Mij] = [ Sdd, Sdc; Scd; Scc ]
 %     [Sdd, Sdc, Scd, Scc] = obj.Convert('mixed')
 %
 %     obj must be a 4-port S-parameter
@@ -43,6 +44,7 @@ function [obj, Sdc, Scd, Scc] = Convert(obj, varargin)
 %   See also RF_PARAM
 
 is_mixed = false;
+is_legacy = false;
 is_skip_next = false;
 is_error = false;
 N = length(varargin);
@@ -62,17 +64,21 @@ for idx = 1:N
                     end
                 case { 'HZ', 'KHZ', 'MHZ', 'GHZ', 'DB', '+DB', '-DB' }
                     obj = convert_to(obj, arg);
-                case { 'MIXED' }
-                    if ~is_mixed
-                        if strcmpi(obj.Type, 'S') && obj.nPorts==4
-                            obj = obj.ConvertToMixedMode;
-                            is_mixed = true;
-                        else
-                            error('Cannot perform ''mixed'' on non 4-port S-parameter')
-                        end
-                    else
-                        error('Cannot performed ''mixed'' conversion twice')
-                    end
+				case { 'LEGACY' }
+					is_legacy = true;
+				case { 'MIXED' }
+					is_mixed = true;
+%                case { 'MIXED' }
+%                    if ~is_mixed
+%                        if strcmpi(obj.Type, 'S') && obj.nPorts==4
+%                            obj = obj.ConvertToMixedMode;
+%                            is_mixed = true;
+%                        else
+%                            error('Cannot perform ''mixed'' on non 4-port S-parameter')
+%                        end
+%                    else
+%                        error('Cannot performed ''mixed'' conversion twice')
+%                    end
 
                 otherwise
                     is_error = true;
@@ -92,19 +98,30 @@ for idx = 1:N
     end
 end
 
-if is_mixed && nargout>1
-    % extract the individual mixed-mode sub-matrices Sdd, Sdc, Scd, Scc
-    Sdc = EMC.S_Param(obj.Freq,obj.Data([1 3],[2 4],:),obj.Impedance,obj.UnitF,obj.Unit);
-    if nargout>=3
-        Scd = EMC.S_Param(obj.Freq,obj.Data([2 4],[1 3],:),obj.Impedance,obj.UnitF,obj.Unit);
-    end
-    if nargout>=4
-        Scc = EMC.S_Param(obj.Freq,obj.Data([2 4],[2 4],:),obj.Impedance,obj.UnitF,obj.Unit);
-    end
-    obj = EMC.S_Param(obj.Freq,obj.Data([1 3],[1 3],:),obj.Impedance,obj.UnitF,obj.Unit); 
+if is_mixed
+	if nargout>1
+		[Sdd, Sdc, Scd, Scc] = obj.ConvertToMixedMode(is_legacy);
+		obj = Sdd;
+	else
+		obj = obj.ConvertToMixedMode(is_legacy);
+	end
 elseif nargout>1
-    error('Multiple output arguments is only compatible with ''mixed'' conversion')
+	error('Multiple output arguments is only compatible with ''mixed'' conversion')
 end
+
+%if is_mixed && nargout>1
+%    % extract the individual mixed-mode sub-matrices Sdd, Sdc, Scd, Scc
+%    Sdc = EMC.S_Param(obj.Freq,obj.Data([1 3],[2 4],:),obj.Impedance,obj.UnitF,obj.Unit);
+%    if nargout>=3
+%        Scd = EMC.S_Param(obj.Freq,obj.Data([2 4],[1 3],:),obj.Impedance,obj.UnitF,obj.Unit);
+%    end
+%    if nargout>=4
+%        Scc = EMC.S_Param(obj.Freq,obj.Data([2 4],[2 4],:),obj.Impedance,obj.UnitF,obj.Unit);
+%    end
+%    obj = EMC.S_Param(obj.Freq,obj.Data([1 3],[1 3],:),obj.Impedance,obj.UnitF,obj.Unit); 
+%elseif nargout>1
+%    error('Multiple output arguments is only compatible with ''mixed'' conversion')
+%end
 
 end
 
@@ -243,4 +260,4 @@ end
 
 end % function convert_to
 
-% Copyright (c) 2022, Kerry S. Martin, martin@wild-wood.net
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

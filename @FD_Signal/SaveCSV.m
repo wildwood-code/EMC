@@ -73,3 +73,5 @@ for i=1:obj.nPoints
 end
 
 fclose(FID);
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

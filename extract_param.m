@@ -72,4 +72,4 @@ for i=1:L
    D(1,i) = P(n1, n2, i); 
 end
 
-% Copyright (c) 2022, Kerry S. Martin, martin@wild-wood.net
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

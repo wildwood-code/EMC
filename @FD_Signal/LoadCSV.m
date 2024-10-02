@@ -94,9 +94,8 @@ end
 end
 
 
-
-
-
 function tf = isstrchar(v)
     tf = ischar(v) || isStringScalar(v);
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

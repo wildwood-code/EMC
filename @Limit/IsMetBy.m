@@ -27,3 +27,5 @@ elseif nargin==2 && isa(freq, 'EMC.Trace')
 else
     error('Invalid arguments')
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

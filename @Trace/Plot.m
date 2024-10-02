@@ -23,7 +23,7 @@ else
         case 'linear'
             hp = plot(obj.x, obj.y+obj.y_offs, varargin{:});
     end
-    if isempty(hax.Legend.String)
+    if isempty(hax.Legend)   % was .String
         if ~isempty(obj.name{1})
             % append legend to empty list
             N = length(hax.Children);
@@ -63,3 +63,5 @@ end
 if nargout>0
     h = hp;
 end
+
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

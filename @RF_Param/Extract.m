@@ -23,4 +23,4 @@ else
 end
 end
 
-% Copyright (c) 2022, Kerry S. Martin, martin@wild-wood.net
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

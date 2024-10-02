@@ -33,5 +33,5 @@
 %    save_params      - save parameters to Touchstone file
 %    SmithChart       - create a Smith chart and plot data on it
 
-% September 16, 2018
-% Copyright (c) 2018, Kerry S. Martin, martin@wild-wood.net
+% October 2, 2024
+% Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net
