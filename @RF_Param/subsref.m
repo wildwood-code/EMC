@@ -1,20 +1,20 @@
 function varargout = subsref(obj, S)
 % Subscripted reference
 %   obj(idx)      - extracts the parameter matrix at the given index
-%   obj(id)       - extracts the given parameter ('12', 'S12') - see Extract
-%   obj(r,c)      - extracts the given parameter - see Extract
+%   obj(id)       - extracts the given parameter ('12', 'S12') - see extract
+%   obj(r,c)      - extracts the given parameter - see extract
 %   [data,freq] = obj(r,c)  - extracts both data and frequency
 %   obj(r,c,idx)  - indexes directly into Data
 %   obj.prop      - returns that property if it exists
 %
-%  See also: Extract
+%  See also: extract
 switch S(1).type
     case '()'
         N = length(S.subs);
         if N==1
 			idx = S.subs{1};
 			if ischar(idx) || isstring(idx)
-			    varargout{1} = obj.Extract(idx);
+			    varargout{1} = obj.extract(idx);
                 if nargout>1
                     varargout{2} = obj.Freq;
                 end
@@ -22,7 +22,7 @@ switch S(1).type
 				varargout{1} = obj.Data(:,:,idx);
 			end
         elseif N==2
-            varargout{1} = obj.Extract(S.subs{1}, S.subs{2});
+            varargout{1} = obj.extract(S.subs{1}, S.subs{2});
             if nargout>1
                 varargout{2} = obj.Freq;
             end

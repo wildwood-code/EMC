@@ -7,16 +7,16 @@ function [P1,P2,P3,P4] = extract(obj, varargin)
     if nargin==1 && nargout==4
         if obj.is_legacy
 		    % extract the 2-port mixed-mode S-parameters
-		    P1 = EMC.S_Param(SM.Freq,SM.Data([1 3],[1 3],:),SM.Impedance,SM.UnitF,SM.Unit);
-		    P2 = EMC.S_Param(SM.Freq,SM.Data([1 3],[2 4],:),SM.Impedance,SM.UnitF,SM.Unit);
-		    P3 = EMC.S_Param(SM.Freq,SM.Data([2 4],[1 3],:),SM.Impedance,SM.UnitF,SM.Unit);
-		    P4 = EMC.S_Param(SM.Freq,SM.Data([2 4],[2 4],:),SM.Impedance,SM.UnitF,SM.Unit);
+		    P1 = EMC.S_Param(obj.Freq,obj.Data([1 3],[1 3],:),obj.Impedance,obj.UnitF,obj.Unit);
+		    P2 = EMC.S_Param(obj.Freq,obj.Data([1 3],[2 4],:),obj.Impedance,obj.UnitF,obj.Unit);
+		    P3 = EMC.S_Param(obj.Freq,obj.Data([2 4],[1 3],:),obj.Impedance,obj.UnitF,obj.Unit);
+		    P4 = EMC.S_Param(obj.Freq,obj.Data([2 4],[2 4],:),obj.Impedance,obj.UnitF,obj.Unit);
         else
 		    % extract the 2-port mixed-mode S-parameters
-		    P1 = EMC.S_Param(SM.Freq,SM.Data([1 2],[1 2],:),SM.Impedance,SM.UnitF,SM.Unit);
-		    P2 = EMC.S_Param(SM.Freq,SM.Data([1 2],[3 4],:),SM.Impedance,SM.UnitF,SM.Unit);
-			P3 = EMC.S_Param(SM.Freq,SM.Data([3 4],[1 2],:),SM.Impedance,SM.UnitF,SM.Unit);
-			P4 = EMC.S_Param(SM.Freq,SM.Data([3 4],[3 4],:),SM.Impedance,SM.UnitF,SM.Unit);	
+		    P1 = EMC.S_Param(obj.Freq,obj.Data([1 2],[1 2],:),obj.Impedance,obj.UnitF,obj.Unit);
+		    P2 = EMC.S_Param(obj.Freq,obj.Data([1 2],[3 4],:),obj.Impedance,obj.UnitF,obj.Unit);
+			P3 = EMC.S_Param(obj.Freq,obj.Data([3 4],[1 2],:),obj.Impedance,obj.UnitF,obj.Unit);
+			P4 = EMC.S_Param(obj.Freq,obj.Data([3 4],[3 4],:),obj.Impedance,obj.UnitF,obj.Unit);	
         end
     elseif nargout==2
         [P1,P2] = extract@EMC.RF_Param(obj, varargin{:});
