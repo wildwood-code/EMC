@@ -1,6 +1,6 @@
-function filename = Save(obj, filename, format, freq_format)
+function filename = save(obj, filename, format, freq_format)
 % Save RF parameter data to a file
-% filename = obj.Save(filename, format, freq_format)
+% filename = obj.save(filename, format, freq_format)
 narginchk(2,4)
 
 if ~strcmpi(obj.Unit, 'complex')

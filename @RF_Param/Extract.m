@@ -1,9 +1,9 @@
-function [P1,P2] = Extract(obj, n1, n2)
+function [P1,P2] = extract(obj, n1, n2)
 % EXTRACT   Extract RF parameter data from the object to an array
-%   P = obj.Extract(n1, n2)
-%   P = obj.Extract(id)
-%   [F,P] = obj.Extract(n1, n2)
-%   [F,P] = obj.Extract(id)
+%   P = obj.extract(n1, n2)
+%   P = obj.extract(id)
+%   [F,P] = obj.extract(n1, n2)
+%   [F,P] = obj.extract(id)
 %
 %    n1, n2 are indices into the parameter set (e.g., 1, 2 for S12)
 %    id is an abbreviated index (e.g., 12, '12', or "12", 'S12' for S12)

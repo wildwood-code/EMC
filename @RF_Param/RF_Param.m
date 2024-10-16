@@ -13,11 +13,11 @@
 %
 %   RF_Param Methods:
 %     RF_Param   - constructor
-%     Save       - save parameter data
-%     Load       - load parameter data (static method)
-%     Extract    - extract parameter data
-%     Convert    - convert this parameter to another type
-%     Plot       - plot the parameter data (in decibels)
+%     save       - save parameter data
+%     load       - load parameter data (static method)
+%     extract    - extract parameter data
+%     convert    - convert this parameter to another type
+%     plot       - plot the parameter data (in decibels)
 %
 %   RF_Param Data access:
 %     obj(idx)     - returns the S-param matrix Data(:,:,idx)
@@ -113,21 +113,61 @@ classdef RF_Param
 		function freq = get.FreqHz(obj)
 			freq = obj.Freq*obj.Fscale;
         end
+
+        % TODO: may make this protected
+        function lbl = get_label(obj, ir, ic)
+            lbl = sprintf('%s%d%d', obj.Type, ir, ic);
+        end
         
     end % methods
     
     methods
-        filename = Save(obj, filename, format, freq_format)
-        [P1,P2] = Extract(obj, n1, n2)
+        filename = save(obj, filename, format, freq_format)
+        [P1,P2] = extract(obj, n1, n2)
         varargout = subsref(obj, S)        
-        h = Plot(obj, varargin)
-        [obj, SDC, SCD, SCC] = Convert(obj, varargin)
+        h = plot(obj, varargin)
+        [obj, SDC, SCD, SCC] = convert(obj, varargin)
     end % methods
+
+
+    methods % deprecated
+        function filename = Save(obj, filename, format, freq_format)
+            fprintf(2, 'Save() is deprecated; please consider using save()\n')
+            filename = obj.save(filename, format, freq_format);
+        end
+        function h = Plot(obj, varargin)
+            fprintf(2, 'Plot() is deprecated; please consider using plot()\n')
+            if nargout>0
+                h = obj.plot(varargin{:});
+            else
+                obj.plot(varargin{:})
+            end
+        end
+        function [P1,P2] = Extract(obj, n1, n2)
+            fprintf(2, 'Extract() is deprecated; please consider using extract()\n')
+            [P1,P2] = obj.extract(n1, n2);
+        end
+        function [obj, SDC, SCD, SCC] = Convert(obj, varargin)
+            fprintf(2, 'Convert() is deprecated; please consider using convert()\n')
+            [obj, SDC, SCD, SCC] = obj.convert(varargin{:});
+        end
+    end
     
     methods (Static)
-        obj = Load(filename)
-        obj = Create(type, varargin)
+        obj = load(filename)
+        obj = create(type, varargin)
     end % methods(Static)
+
+    methods (Static) % deprecated
+        function obj = Load(filename)
+            fprintf(2, 'Load() is deprecated; please consider using load()\n')
+            obj = EMC.RF_Param.load(filename);
+        end
+        function obj = Create(type, varargin)
+            fprintf(2, 'Create() is deprecated; please consider using create()\n')
+            obj = EMC.RF_Param.create(type, varargin{:});
+        end
+    end
     
     methods (Static, Access=protected)
         [fscale,unitf] = check_freq_unit(unitf)

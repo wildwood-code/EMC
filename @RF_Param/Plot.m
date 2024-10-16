@@ -1,4 +1,4 @@
-function h = Plot(obj, varargin)
+function h = plot(obj, varargin)
 % PLOT  Plot RF Parameters
 %   h = PLOT(obj, varargin)
 %   takes same arguments as 2D plot function
@@ -20,9 +20,9 @@ for i=1:Nports
     for j=1:Nports
         
         if strcmp(obj.Unit, 'complex')
-            datay = 20*log10(abs(obj.Extract(i,j)));
+            datay = 20*log10(abs(obj.extract(i,j)));
         else
-            datay = obj.Extract(i,j);
+            datay = obj.extract(i,j);
         end
         subplot(Nports,Nports,p)
 
@@ -38,7 +38,8 @@ for i=1:Nports
             xlabel(lbl)
         end
         if isempty(hax.YLabel.String)
-            lbl = sprintf('|%s%d%d| (%s)', obj.Type, i, j, 'dB');
+			slbl = obj.get_label(i, j);
+            lbl = sprintf('|%s| (%s)', slbl, 'dB');
             ylabel(lbl)
         end
         p = p + 1;

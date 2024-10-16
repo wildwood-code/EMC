@@ -1,34 +1,34 @@
-function [obj, Sdc, Scd, Scc] = Convert(obj, varargin)
+function [obj, Sdc, Scd, Scc] = convert(obj, varargin)
 % CONVERT  Perform a variety of conversions on an RF Param (type, freq, unit)
 %
 %   Convert to another type of parameter:
-%     obj = obj.Convert(dest_type)
-%     obj = obj.Convert(dest_type, Z)
+%     obj = obj.convert(dest_type)
+%     obj = obj.convert(dest_type, Z)
 %  
 %     dest_type may be 'Z', 'Y', 'H', 'G', 'ABCD', 'S', or 'T'
 %     Z is only used when converting to/from S or T-parameters
 %     Z is a positive, real scalar
 %
 %   Convert to mixed-mode S-parameters:
-%     obj = obj.Convert('mixed')             [ [Sdd], [Sdc]; [Scd], [Scc] ] order where [Sij] = [ M11, M12; M21, M22 ]
-%     obj = obj.Convert('mixed', 'legacy')   [ [M11], [M12]; [M21], [M22] ] order where [Mij] = [ Sdd, Sdc; Scd; Scc ]
-%     [Sdd, Sdc, Scd, Scc] = obj.Convert('mixed')
+%     obj = obj.convert('mixed')             [ [Sdd], [Sdc]; [Scd], [Scc] ] order where [Sij] = [ M11, M12; M21, M22 ]
+%     obj = obj.convert('mixed', 'legacy')   [ [M11], [M12]; [M21], [M22] ] order where [Mij] = [ Sdd, Sdc; Scd; Scc ]
+%     [Sdd, Sdc, Scd, Scc] = obj.convert('mixed')
 %
 %     obj must be a 4-port S-parameter
 %
 %   Convert frequency unit:
-%     obj = obj.Convert(frequnit)
+%     obj = obj.convert(frequnit)
 %  
 %     frequnit may be 'Hz', 'kHz', 'MHz', or 'GHz'
 %  
 %   Convert to decibels:
-%     obj = obj.Convert(dbunit)
+%     obj = obj.convert(dbunit)
 %  
 %     dbunit may be 'dB', '+dB', or '-dB'   (with -dB, the data is negated)
 %     only S-parameters may be converted to decibels
 %  
 %   Add adjustment/offset to decibels:
-%     obj = obj.Convert(dbadjust)
+%     obj = obj.convert(dbadjust)
 %  
 %     dbadjust is a real scalar, obj must already be in decibels
 %  
@@ -39,7 +39,7 @@ function [obj, Sdc, Scd, Scc] = Convert(obj, varargin)
 %     Example:
 %       % convert to S parameters with 50 ohm impedance, scaled to 'MHz',
 %       % expressed in decibel loss, with an adjustment of +6.0 dB
-%       obj = obj.Convert('S', 50, 'MHz', '-dB', 6.0)
+%       obj = obj.convert('S', 50, 'MHz', '-dB', 6.0)
 %
 %   See also RF_PARAM
 
@@ -68,18 +68,6 @@ for idx = 1:N
 					is_legacy = true;
 				case { 'MIXED' }
 					is_mixed = true;
-%                case { 'MIXED' }
-%                    if ~is_mixed
-%                        if strcmpi(obj.Type, 'S') && obj.nPorts==4
-%                            obj = obj.ConvertToMixedMode;
-%                            is_mixed = true;
-%                        else
-%                            error('Cannot perform ''mixed'' on non 4-port S-parameter')
-%                        end
-%                    else
-%                        error('Cannot performed ''mixed'' conversion twice')
-%                    end
-
                 otherwise
                     is_error = true;
             end
@@ -100,28 +88,14 @@ end
 
 if is_mixed
 	if nargout>1
-		[Sdd, Sdc, Scd, Scc] = obj.ConvertToMixedMode(is_legacy);
+		[Sdd, Sdc, Scd, Scc] = obj.convert_to_mixed_mode(is_legacy);
 		obj = Sdd;
 	else
-		obj = obj.ConvertToMixedMode(is_legacy);
+		obj = obj.convert_to_mixed_mode(is_legacy);
 	end
 elseif nargout>1
 	error('Multiple output arguments is only compatible with ''mixed'' conversion')
 end
-
-%if is_mixed && nargout>1
-%    % extract the individual mixed-mode sub-matrices Sdd, Sdc, Scd, Scc
-%    Sdc = EMC.S_Param(obj.Freq,obj.Data([1 3],[2 4],:),obj.Impedance,obj.UnitF,obj.Unit);
-%    if nargout>=3
-%        Scd = EMC.S_Param(obj.Freq,obj.Data([2 4],[1 3],:),obj.Impedance,obj.UnitF,obj.Unit);
-%    end
-%    if nargout>=4
-%        Scc = EMC.S_Param(obj.Freq,obj.Data([2 4],[2 4],:),obj.Impedance,obj.UnitF,obj.Unit);
-%    end
-%    obj = EMC.S_Param(obj.Freq,obj.Data([1 3],[1 3],:),obj.Impedance,obj.UnitF,obj.Unit); 
-%elseif nargout>1
-%    error('Multiple output arguments is only compatible with ''mixed'' conversion')
-%end
 
 end
 

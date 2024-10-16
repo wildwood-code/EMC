@@ -1,6 +1,6 @@
-function obj = Load(filename)
+function obj = load(filename)
 % Load RF parameter data from a file
-% obj = RF_Param.Load(filename)
+% obj = RF_Param.load(filename)
 [F,P,TYPE,IMP,~] = EMC.load_params(filename);
 switch TYPE
     case 'Z'
