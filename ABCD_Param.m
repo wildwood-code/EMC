@@ -46,8 +46,23 @@ classdef ABCD_Param < EMC.RF_Param
             end
             
             obj@EMC.RF_Param(freq, data, unitf, unit);
-            obj.Type = 'ABCD';  % property of superclass
         end
+		
+		function lbl = get_label(obj, ir, ic)
+			ix = (ir-1)*2+ic;  % map it 1-4
+			switch ix
+				case 1
+					lbl = 'A';
+				case 2
+					lbl = 'B';
+				case 3
+					lbl = 'C';
+				case 4
+					lbl = 'D';
+				otherwise
+					lbl = '???';
+			end
+		end
         
     end
 

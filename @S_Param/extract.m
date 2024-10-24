@@ -92,10 +92,6 @@ else
     P1 = extract@EMC.RF_Param(obj, var{:});
 end
 
-
-
 end
-
-
 
 % Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

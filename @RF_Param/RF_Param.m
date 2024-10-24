@@ -30,6 +30,7 @@
 classdef RF_Param
     
 	properties (Dependent)
+		Type          % type of S-parameter
 		FreqHz        % frequency scaled to Hz [nPoints x 1]
 	end
 	
@@ -41,10 +42,6 @@ classdef RF_Param
         UnitF         % frequency units
         Unit          % magnitude units
         Fscale        % frequency scaling
-    end
-    
-    properties (SetAccess = protected, Hidden = true)
-        Type = '';    % used to identify type of subclass by this superclass
     end
     
     methods
@@ -113,6 +110,17 @@ classdef RF_Param
 		function freq = get.FreqHz(obj)
 			freq = obj.Freq*obj.Fscale;
         end
+		
+		function type = get.Type(obj)
+			type = class(obj);
+			m = regexp(type, '^(?:[A-Z.]+\.)?([A-Z]{1,4})(?:_param)?$', 'tokens', 'ignorecase');
+			if ~isempty(m)
+				type = upper(m{1}{1});
+			else
+				type = '';
+			end
+		end
+		
 
         % TODO: may make this protected
         function lbl = get_label(obj, ir, ic)

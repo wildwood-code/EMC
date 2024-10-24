@@ -1,8 +1,8 @@
-function obj = create(TYPE, varargin)
+function obj = create(type, varargin)
 % CREATE  Create an RF_Param of the specified type with the specified
 % arguments
-%   obj = RF_Param.create(TYPE, ...)
-switch upper(TYPE)
+%   obj = RF_Param.create(type, ...)
+switch upper(type)
     case 'Z'
         obj = EMC.Z_Param(varargin{:});
     case 'Y'

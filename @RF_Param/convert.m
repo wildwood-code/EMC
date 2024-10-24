@@ -53,6 +53,10 @@ for idx = 1:N
     if ~is_skip_next
         arg = varargin{idx};
         if ischar(arg) || isstring(arg)
+			m = regexp(arg, '^(?:[A-Z.]+\.)?([A-Z]{1,4})(?:_param)?$', 'tokens', 'ignorecase');
+			if ~isempty(m)
+				arg = m{1}{1};
+			end
             switch upper(arg)
                 case { 'Z', 'Y', 'H', 'G', 'ABCD', 'S', 'T' }
                     if idx<N && isscalar(varargin{idx+1}) && varargin{idx+1}>0

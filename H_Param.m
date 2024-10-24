@@ -46,7 +46,6 @@ classdef H_Param < EMC.RF_Param
             end
             
             obj@EMC.RF_Param(freq, data, unitf, unit);
-            obj.Type = 'H';  % property of superclass
         end
         
     end

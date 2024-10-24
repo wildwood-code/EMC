@@ -56,7 +56,6 @@ classdef T_Param < EMC.RF_Param
             end
             
             obj@EMC.RF_Param(freq, data, unitf, unit);
-            obj.Type = 'T';  % property of superclass
             obj.Impedance = Z;
         end
         
