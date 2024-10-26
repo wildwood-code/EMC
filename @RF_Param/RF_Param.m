@@ -77,8 +77,17 @@ classdef RF_Param
                 data = zeros(1,1,NL);
             end
             
-            if ~isnumeric(data) || ndims(data)~=3
-                error('data must be a N x N x L numeric array')
+            if ~isnumeric(data)
+                error('data must be a numeric array')
+            elseif ndims(data)==2 %#ok<ISMAT>
+                [nr,nc] = size(data);
+                if nr==1 || nc==1
+                    data = reshape(data,1,1,length(data));
+                else
+                    error('1-port data must be a 1 x L numeric array')
+                end
+            elseif ndims(data)~=3
+                error('data must be a N x N x L or 1 x L numeric array')
             end
             
             [N, NC, NL] = size(data);
