@@ -18,18 +18,43 @@ p = 1;
 
 for i=1:Nports
     for j=1:Nports
-        
-        if strcmp(obj.Unit, 'complex')
-            datay = 20*log10(abs(obj.extract(i,j)));
-        else
-            datay = obj.extract(i,j);
+
+        [type, unit_lbl] = obj.get_plot_info(i,j);
+
+        switch type
+            case 'dB'
+                islogy = false;
+                isyabs = true;
+                datay = 20*log10(abs(obj.extract(i,j)));
+            case 'lin'
+                islogy = false;
+                if strcmp(obj.Unit,'complex')
+                    isyabs = true;
+                    datay = abs(obj.extract(i,j));
+                else
+                    isyabs = false;
+                    datay = obj.extract(i,j);
+                end
+            case 'log'
+                islogy = true;
+                isyabs = true;
+                datay = abs(obj.extract(i,j));
         end
+
         subplot(Nports,Nports,p)
 
         if islogf
-            semilogx(datax, datay, varargin{:})
+            if islogy
+                loglog(datax, datay, varargin{:})
+            else
+                semilogx(datax, datay, varargin{:})
+            end
         else
-            plot(datax, datay, varargin{:})
+            if islogy
+                semilogy(datax, datay, varargin{:})
+            else
+                plot(datax, datay, varargin{:})
+            end
         end
 
         hax = gca;
@@ -39,7 +64,12 @@ for i=1:Nports
         end
         if isempty(hax.YLabel.String)
 			slbl = obj.get_label(i, j);
-            lbl = sprintf('|%s| (%s)', slbl, 'dB');
+            if isyabs
+                bar = '|';
+            else
+                bar = '';
+            end
+            lbl = sprintf('%s%s%s (%s)', bar, slbl, bar, unit_lbl);
             ylabel(lbl)
         end
         p = p + 1;

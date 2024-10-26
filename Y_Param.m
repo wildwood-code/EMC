@@ -43,6 +43,13 @@ classdef Y_Param < EMC.RF_Param
             obj@EMC.RF_Param(freq, data, unitf, unit);
         end
         
+    end % methods
+
+    methods (Access=protected)
+        function [type, unit_lbl] = get_plot_info(obj, ir, ic) %#ok<INUSD>
+            type = 'log';
+            unit_lbl = 'S';
+        end
     end
 
 end

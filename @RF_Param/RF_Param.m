@@ -129,14 +129,26 @@ classdef RF_Param
 				type = '';
 			end
 		end
-		
+        
+    end % methods
 
-        % TODO: may make this protected
+    methods (Access=protected)
         function lbl = get_label(obj, ir, ic)
             lbl = sprintf('%s%d%d', obj.Type, ir, ic);
         end
-        
-    end % methods
+
+        % this function will be overloaded if specific plot types are required
+        function [type, unit_lbl] = get_plot_info(obj, ir, ic) %#ok<INUSD> 
+            if strcmp(obj.Unit, 'complex')
+                type = 'dB'; % other options 'log' 'lin'
+                unit_lbl = 'dB';
+            else
+                type = 'lin';
+                unit_lbl = obj.Unit;
+            end
+        end
+
+    end % protected methods
     
     methods
         filename = save(obj, filename, format, freq_format)

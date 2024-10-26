@@ -6,24 +6,24 @@
 %     ABCD_Param    - constructor
 %
 %   See also:  RF_PARAM H_PARAM G_PARAM Z_PARAM Y_PARAM S_PARAM T_PARAM
-%     
+%
 classdef ABCD_Param < EMC.RF_Param
-    
+
     methods
 
         % -------------------------------
-        % ABCD_Param constructor        
+        % ABCD_Param constructor
         function obj = ABCD_Param(freq, data, unitf, unit)
             % Constructor
             % obj = ABCD_PARAM(freq, data, unit_freq, unit)
             narginchk(0,4)
-            
+
             if nargin<4
                 unit = 'complex';
             elseif ~ischar(unit)
                 error('Unit must be a character vector')
             end
-            
+
             if nargin<3
                 unitf = 'Hz';
             elseif ischar(unit)
@@ -39,32 +39,35 @@ classdef ABCD_Param < EMC.RF_Param
                 NL = length(freq);
                 data = zeros(2,2,NL);
             end
-            
+
             [NR,~,~] = size(data);
             if NR~=2
                 error('ABCD-Parameters only valid for 2-port networks')
             end
-            
+
             obj@EMC.RF_Param(freq, data, unitf, unit);
         end
-		
-		function lbl = get_label(obj, ir, ic)
-			ix = (ir-1)*2+ic;  % map it 1-4
-			switch ix
-				case 1
-					lbl = 'A';
-				case 2
-					lbl = 'B';
-				case 3
-					lbl = 'C';
-				case 4
-					lbl = 'D';
-				otherwise
-					lbl = '???';
-			end
-		end
-        
-    end
+
+    end % methods
+
+
+    methods (Access=protected)
+        function lbl = get_label(obj, ir, ic) %#ok<INUSL>
+            ix = (ir-1)*2+ic;  % map it 1-4
+            switch ix
+                case 1
+                    lbl = 'A';
+                case 2
+                    lbl = 'B';
+                case 3
+                    lbl = 'C';
+                case 4
+                    lbl = 'D';
+                otherwise
+                    lbl = '???';
+            end
+        end
+    end % protected methods
 
 end
 

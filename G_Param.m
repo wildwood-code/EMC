@@ -48,6 +48,23 @@ classdef G_Param < EMC.RF_Param
             obj@EMC.RF_Param(freq, data, unitf, unit);
         end
         
+    end % methods
+
+    methods (Access=protected)
+        function [type, unit_lbl] = get_plot_info(obj, ir, ic) %#ok<INUSL> 
+            i = (ir-1)*2+ic; % map 1-4
+            switch i
+                case 1
+                    unit_lbl = 'S'; % A/V
+                case 2
+                    unit_lbl = '-';  % A/A
+                case 3
+                    unit_lbl = '-';  % V/V
+                case 4
+                    unit_lbl = '\Omega'; % V/A
+            end
+            type = 'lin';
+        end
     end
 
 end

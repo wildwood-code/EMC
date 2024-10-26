@@ -9,9 +9,9 @@
 %     extract                 - extract mixed-mode elements/matrices
 %
 %   See also:  RF_PARAM H_PARAM G_PARAM Z_PARAM Y_PARAM ABCD_PARAM T_PARAM
-%     
+%
 classdef S_Param < EMC.RF_Param
-    
+
     properties (SetAccess = private)
         Impedance       % impedance Zinout or [Zin Zout]
         is_mixed        % false=single-ended, true=mixed-mode
@@ -23,11 +23,11 @@ classdef S_Param < EMC.RF_Param
         % flags do not exist in the converted RF_Param object
         % as they are specific to S
     end
-    
+
     methods
 
         % -------------------------------
-        % S_Param constructor        
+        % S_Param constructor
         function obj = S_Param(freq, data, Z, unitf, unit)
             % Constructor
             % obj = S_PARAM(freq, data, Z, unitf, unit)
@@ -38,7 +38,7 @@ classdef S_Param < EMC.RF_Param
             elseif ~ischar(unit)
                 error('Unit must be a character vector')
             end
-            
+
             if nargin<4
                 unitf = 'Hz';
             elseif ischar(unit)
@@ -46,7 +46,7 @@ classdef S_Param < EMC.RF_Param
             else
                 error('UnitF must be a character vector')
             end
-            
+
             if nargin<1
                 data = zeros(1,1,0);
                 freq = zeros(1,0);
@@ -60,7 +60,7 @@ classdef S_Param < EMC.RF_Param
             if ~isreal(Z) || Z<=0
                 error('Impedance must be real and >0')
             end
-            
+
             obj@EMC.RF_Param(freq, data, unitf, unit);
             obj.Impedance = Z;
             obj.is_mixed = false;
@@ -82,6 +82,10 @@ classdef S_Param < EMC.RF_Param
         end
 
 
+    end
+
+    methods (Access=protected)
+        lbl = get_label(obj, ir, ic)
     end
 
 end
