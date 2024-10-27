@@ -28,38 +28,49 @@
 %              TD_SIGNAL
 %
 classdef RF_Param
-    
-	properties (Dependent)
-		Type          % type of S-parameter
-		FreqHz        % frequency scaled to Hz [nPoints x 1]
-	end
-	
-    properties (SetAccess = protected)  
+
+    % TODO: improvements
+    %   remove Unit. Always store as 'complex'. Display unit is handled through get_plot_info()
+    %   per-port impedance
+    %   load latest Touchstone format
+    %   load LTspice network analysis (s parameters and possibly others)
+
+    properties (Dependent, Hidden)
+        Type          % type of S-parameter
+        FreqHz        % frequency scaled to Hz [nPoints x 1]
+    end % dependent, hidden properties
+
+
+    properties (SetAccess = protected)
         nPorts        % number of ports for this RF-parameter set
         nPoints       % number of samples in the set
         Freq          % frequencies [nPoints x 1]
         Data          % complex data [nPorts x nPorts x nPoints]
         UnitF         % frequency units
         Unit          % magnitude units
+    end % set protected properties
+
+
+    properties (SetAccess = protected, Hidden)
         Fscale        % frequency scaling
-    end
-    
+    end % hidden, set protected properties
+
+
     methods
-        
+
         % -------------------------------
         % RF_Param constructor
         function obj = RF_Param(freq, data, unitf, unit)
-            % Constructor
             % obj = RF_PARAM(freq, data, unitf, unit)
-            
+
             narginchk(0,4)
-            
+
             if nargin<4
                 unit = 'complex';
             elseif ~ischar(unit)
                 error('Unit must be a character vector')
             end
-            
+
             if nargin<3
                 unitf = 'Hz';
                 fscale = 1;
@@ -68,7 +79,7 @@ classdef RF_Param
             else
                 error('UnitF must be a character vector')
             end
-                
+
             if nargin<1
                 data = zeros(1,1,0);
                 freq = zeros(1,0);
@@ -76,7 +87,7 @@ classdef RF_Param
                 NL = length(freq);
                 data = zeros(1,1,NL);
             end
-            
+
             if ~isnumeric(data)
                 error('data must be a numeric array')
             elseif ndims(data)==2 %#ok<ISMAT>
@@ -89,56 +100,75 @@ classdef RF_Param
             elseif ndims(data)~=3
                 error('data must be a N x N x L or 1 x L numeric array')
             end
-            
+
             [N, NC, NL] = size(data);
-            
+
             if N<1 || N~=NC
                 error('data must be a N x N x L numeric array')
             end
-            
+
             obj.nPorts = N;
             obj.nPoints = NL;
-            
+
             if ~isnumeric(freq) || ~isvector(freq)
                 error('freq must be numeric vector')
             end
-            
+
             % Make sure freqeuncy is stored as a column vector
             if iscolumn(freq)
                 obj.Freq = freq';
             else
                 obj.Freq = freq;
             end
-            
+
             obj.Data = data;
             obj.UnitF = unitf;
             obj.Unit = unit;
             obj.Fscale = fscale;
-        end
-		
-		function freq = get.FreqHz(obj)
-			freq = obj.Freq*obj.Fscale;
-        end
-		
-		function type = get.Type(obj)
-			type = class(obj);
-			m = regexp(type, '^(?:[A-Z.]+\.)?([A-Z]{1,4})(?:_param)?$', 'tokens', 'ignorecase');
-			if ~isempty(m)
-				type = upper(m{1}{1});
-			else
-				type = '';
-			end
-		end
-        
+        end % function RF_Param constructor
+
+
+        % -------------------------------
+        % RF_Param function get.FreqHz()
+        function freq = get.FreqHz(obj)
+            freq = obj.Freq*obj.Fscale;
+        end % function get.FreqHz
+
+        % -------------------------------
+        % RF_Param function get.Type()
+        function type = get.Type(obj)
+            type = class(obj);
+            m = regexp(type, '^(?:[A-Z.]+\.)?([A-Z]{1,4})(?:_param)?$', 'tokens', 'ignorecase');
+            if ~isempty(m)
+                type = upper(m{1}{1});
+            else
+                type = '';
+            end
+        end % function get.Type
+
+
+        filename = save(obj, filename, format, freq_format)
+        [P1,P2] = extract(obj, n1, n2)
+        varargout = subsref(obj, S)
+        h = plot(obj, varargin)
+        [obj, SDC, SCD, SCC] = convert(obj, varargin)
+
     end % methods
 
+
     methods (Access=protected)
+
+        % -------------------------------
+        % RF_Param function get_label()
         function lbl = get_label(obj, ir, ic)
             lbl = sprintf('%s%d%d', obj.Type, ir, ic);
-        end
+        end % function get_label()
 
+
+        % -------------------------------
+        % RF_Param function get_plot_info()
         % this function will be overloaded if specific plot types are required
-        function [type, unit_lbl] = get_plot_info(obj, ir, ic) %#ok<INUSD> 
+        function [type, unit_lbl] = get_plot_info(obj, ir, ic) %#ok<INUSD>
             if strcmp(obj.Unit, 'complex')
                 type = 'dB'; % other options 'log' 'lin'
                 unit_lbl = 'dB';
@@ -146,20 +176,28 @@ classdef RF_Param
                 type = 'lin';
                 unit_lbl = obj.Unit;
             end
-        end
+        end % function get_plot_info()
 
     end % protected methods
-    
-    methods
-        filename = save(obj, filename, format, freq_format)
-        [P1,P2] = extract(obj, n1, n2)
-        varargout = subsref(obj, S)        
-        h = plot(obj, varargin)
-        [obj, SDC, SCD, SCC] = convert(obj, varargin)
-    end % methods
+
+
+    methods (Static)
+
+        obj = load(filename)
+        obj = create(type, varargin)
+
+    end % static methods
+
+
+    methods (Static, Access=protected)
+
+        [fscale,unitf] = check_freq_unit(unitf)
+
+    end % protected static methods
 
 
     methods % deprecated
+
         function filename = Save(obj, filename, format, freq_format)
             fprintf(2, 'Save() is deprecated; please consider using save()\n')
             filename = obj.save(filename, format, freq_format);
@@ -180,14 +218,12 @@ classdef RF_Param
             fprintf(2, 'Convert() is deprecated; please consider using convert()\n')
             [obj, SDC, SCD, SCC] = obj.convert(varargin{:});
         end
-    end
-    
-    methods (Static)
-        obj = load(filename)
-        obj = create(type, varargin)
-    end % methods(Static)
+
+    end % deprecated methods
+
 
     methods (Static) % deprecated
+
         function obj = Load(filename)
             fprintf(2, 'Load() is deprecated; please consider using load()\n')
             obj = EMC.RF_Param.load(filename);
@@ -196,12 +232,10 @@ classdef RF_Param
             fprintf(2, 'Create() is deprecated; please consider using create()\n')
             obj = EMC.RF_Param.create(type, varargin{:});
         end
-    end
-    
-    methods (Static, Access=protected)
-        [fscale,unitf] = check_freq_unit(unitf)
-    end
-    
+
+    end % static deprecated methods
+
+
 end % RF_param
 
 % Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

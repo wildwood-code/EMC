@@ -13,23 +13,31 @@
 classdef S_Param < EMC.RF_Param
 
     properties (SetAccess = private)
-        Impedance       % impedance Zinout or [Zin Zout]
-        is_mixed        % false=single-ended, true=mixed-mode
-        is_legacy       % false=new-ordering, false=legacy-ordering
 
+        Impedance       % impedance Zinout or [Zin Zout]
+        Mode            % 'single-ended' or 'mixed' (get .is_mixed for boolean)
 
         % TODO: make sure that is_mixed and is_legacy are considered
         % if converting to another format (Z, etc) and that these
         % flags do not exist in the converted RF_Param object
         % as they are specific to S
-    end
+
+    end % set private properties
+
+
+    properties (SetAccess = private, Hidden)
+
+        is_mixed        % false=single-ended, true=mixed-mode
+        is_legacy       % false=new-ordering, false=legacy-ordering
+
+    end % hidden, set private properties
+
 
     methods
 
         % -------------------------------
         % S_Param constructor
         function obj = S_Param(freq, data, Z, unitf, unit)
-            % Constructor
             % obj = S_PARAM(freq, data, Z, unitf, unit)
             narginchk(0,5)
 
@@ -65,12 +73,33 @@ classdef S_Param < EMC.RF_Param
             obj.Impedance = Z;
             obj.is_mixed = false;
             obj.is_legacy = false;
-        end
+        end % function S_param constructor
+
+
+        function mode = get.Mode(obj)
+            if obj.is_mixed
+                mode = 'mixed';
+            else
+                mode = 'single-ended';
+            end
+        end % function get.Mode()
+
 
         [SM_SDD,SDC,SCD,SCC] = convert_to_mixed_mode(obj, is_legacy)
         S = convert_from_mixed_mode(obj)
         [P1,P2,P3,P4] = extract(obj, varargin)
 
+    end % methods
+
+
+    methods (Access=protected)
+
+        lbl = get_label(obj, ir, ic)
+
+    end % protected methods
+
+
+    methods % depracated
 
         function [SM_SDD,SDC,SCD,SCC] = ConvertToMixedMode(obj, is_legacy)
             fprintf(2, 'ConvertToMixedMode() is deprecated; please consider using convert_to_mixed_mode()\n')
@@ -81,14 +110,8 @@ classdef S_Param < EMC.RF_Param
             end
         end
 
+    end % deprecated methods
 
-    end
-
-    methods (Access=protected)
-        lbl = get_label(obj, ir, ic)
-    end
-
-end
+end % S_param
 
 % Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net
-
