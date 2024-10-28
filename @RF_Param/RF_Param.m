@@ -10,9 +10,13 @@
 %     nPoints    - number of frequency points in the parameter data
 %     Freq       - column vector of frequencies (in Hz)
 %     Data       - complex parameter data
+%     Unit       - magnitude unit
+%     UnitF      - frequency unit
+%     FreqHz     - frequency converted to Hz
 %
 %   RF_Param Methods:
 %     RF_Param   - constructor
+%     create     - create specified RF_Param (static method)
 %     save       - save parameter data
 %     load       - load parameter data (static method)
 %     extract    - extract parameter data
@@ -33,18 +37,17 @@ classdef RF_Param
     %   remove Unit. Always store as 'complex'. Display unit is handled through get_plot_info()
     %   per-port impedance
     %   load latest Touchstone format
-    %   load LTspice network analysis (s parameters and possibly others)
 
     properties (Dependent, Hidden)
         Type          % type of S-parameter
-        FreqHz        % frequency scaled to Hz [nPoints x 1]
+        FreqHz        % frequency scaled to Hz [1 x nPoints]
     end % dependent, hidden properties
 
 
     properties (SetAccess = protected)
         nPorts        % number of ports for this RF-parameter set
         nPoints       % number of samples in the set
-        Freq          % frequencies [nPoints x 1]
+        Freq          % frequencies [1 x nPoints]
         Data          % complex data [nPorts x nPorts x nPoints]
         UnitF         % frequency units
         Unit          % magnitude units
@@ -58,10 +61,12 @@ classdef RF_Param
 
     methods
 
-        % -------------------------------
-        % RF_Param constructor
         function obj = RF_Param(freq, data, unitf, unit)
-            % obj = RF_PARAM(freq, data, unitf, unit)
+            % RF_PARAM constructor
+            %   obj = RF_PARAM(freq, data, unitf, unit)
+            %     freq  = frequency data [1 x Npoints]
+            %     data  = complex parameter data [Nports x Nports x Npoints]
+            %     unitf = frequency unit ['Hz','kHz','MHz', 'GHz']
 
             narginchk(0,4)
 
@@ -74,7 +79,7 @@ classdef RF_Param
             if nargin<3
                 unitf = 'Hz';
                 fscale = 1;
-            elseif ischar(unit)
+            elseif ischar(unitf)
                 [fscale, unitf] = EMC.RF_Param.check_freq_unit(unitf);
             else
                 error('UnitF must be a character vector')
@@ -134,6 +139,7 @@ classdef RF_Param
             freq = obj.Freq*obj.Fscale;
         end % function get.FreqHz
 
+        
         % -------------------------------
         % RF_Param function get.Type()
         function type = get.Type(obj)
