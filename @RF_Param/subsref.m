@@ -7,7 +7,7 @@ function varargout = subsref(obj, S)
 %   obj(r,c,idx)  - indexes directly into Data
 %   obj.prop      - returns that property if it exists
 %
-%  See also: extract
+%  See also: EXTRACT
 switch S(1).type
     case '()'
         N = length(S.subs);

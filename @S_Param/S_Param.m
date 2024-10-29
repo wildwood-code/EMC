@@ -2,6 +2,15 @@
 %
 %   S_PARAM is a class for holding S-parameter data
 %
+%   S_Param Properties:
+%     nPorts     - number of ports in the network
+%     nPoints    - number of frequency points in the parameter data
+%     Freq       - column vector of frequencies (in Hz)
+%     Data       - complex parameter data
+%     FScale     - frequency scale (1=Hz, 1e3=kHz, 1e6=MHz, 1e9=GHz)
+%     Mode       - 'single-ended' or 'mixed'
+%     Impedance  - port impedance (in Ohms)
+%
 %   S_Param Methods:
 %     S_Param                 - constructor
 %     convert_to_mixed_mode   - convert to mixed-mode (DM/CM) form
@@ -35,24 +44,26 @@ classdef S_Param < EMC.RF_Param
 
     methods
 
-        % -------------------------------
-        % S_Param constructor
-        function obj = S_Param(freq, data, Z, unitf, unit)
-            % obj = S_PARAM(freq, data, Z, unitf, unit)
-            narginchk(0,5)
+        function obj = S_Param(freq, data, Z, fscale)
+            % S_PARAM constructor
+            %   obj = RF_PARAM(freq, data, Z, fscale)
+            %     freq  = frequency data [1 x Npoints]
+            %     data  = complex parameter data [Nports x Nports x Npoints]
+            %     Z     = s-parameter port impedance
+            %     fscale = frequency unit ['Hz','kHz','MHz', 'GHz']
+            %              of scale value: [1.0, 1.0e3, 1.0e6, 1.0e9]
+            %              default='Hz'=1.0
+            %
+            %   If no arguments are specified, an empty S_Param is created
 
-            if nargin<5
-                unit = 'complex';
-            elseif ~ischar(unit)
-                error('Unit must be a character vector')
-            end
+            narginchk(0,4)
 
             if nargin<4
-                unitf = 'Hz';
-            elseif ischar(unit)
-                [~, unitf] = EMC.RF_Param.check_freq_unit(unitf);
+                fscale = 1;
+            elseif ischar(fscale) || isscalar(fscale)
+                [fscale, ~] = EMC.RF_Param.check_freq_unit(fscale);
             else
-                error('UnitF must be a character vector')
+                fscale = []; % will error out in RF_Param constructor
             end
 
             if nargin<1
@@ -69,14 +80,19 @@ classdef S_Param < EMC.RF_Param
                 error('Impedance must be real and >0')
             end
 
-            obj@EMC.RF_Param(freq, data, unitf, unit);
+            obj@EMC.RF_Param(freq, data, fscale);
             obj.Impedance = Z;
             obj.is_mixed = false;
             obj.is_legacy = false;
+
         end % function S_param constructor
 
 
         function mode = get.Mode(obj)
+            % GET.MODE  Get method for the S_Param mode (single-ended or mixed)
+            %   mode = obj.Mode
+            %           'single-ended'
+            %           'mixed'
             if obj.is_mixed
                 mode = 'mixed';
             else

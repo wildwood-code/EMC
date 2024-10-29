@@ -24,6 +24,8 @@ option_format = 'MA';
 IMP = 50;
 
 % get suffix from filename (specifies number of ports)
+% TODO: suffix may be wrong - give an informative error if it seems wrong
+%       (e.g., .s4p which does not seem to have 4 ports)
 [~,~,ext] = fileparts(filename);
 tok = regexpi(ext, '^\.s([1-9])p$', 'tokens');
 if ~isempty(tok)

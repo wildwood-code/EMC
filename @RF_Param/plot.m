@@ -28,13 +28,8 @@ for i=1:Nports
                 datay = 20*log10(abs(obj.extract(i,j)));
             case 'lin'
                 islogy = false;
-                if strcmp(obj.Unit,'complex')
-                    isyabs = true;
-                    datay = abs(obj.extract(i,j));
-                else
-                    isyabs = false;
-                    datay = obj.extract(i,j);
-                end
+                isyabs = true;
+                datay = abs(obj.extract(i,j));
             case 'log'
                 islogy = true;
                 isyabs = true;
@@ -59,7 +54,7 @@ for i=1:Nports
 
         hax = gca;
         if isempty(hax.XLabel.String)
-            lbl = sprintf('Frequency (%s)', obj.UnitF);
+            lbl = sprintf('Frequency (%s)', get_unitf(obj.FScale));
             xlabel(lbl)
         end
         if isempty(hax.YLabel.String)
@@ -80,5 +75,20 @@ if nargout>0
     h = gcf;
 end
 
+end
+
+
+function unitf = get_unitf(fscale)
+switch fscale
+    case 1.0e3
+        unitf = 'kHZ';
+    case 1.0e6
+        unitf = 'MHz';
+    case 1.0e9
+        unitf = 'GHz';
+    otherwise
+        unitf = 'Hz';
+end
+end
 
 % Copyright (c) 2024, Kerry S. Martin, martin@wild-wood.net

@@ -2,6 +2,13 @@
 %
 %   H_PARAM is a class for holding H-parameter data
 %
+%   H_Param Properties:
+%     nPorts     - number of ports in the network
+%     nPoints    - number of frequency points in the parameter data
+%     Freq       - column vector of frequencies (in Hz)
+%     Data       - complex parameter data
+%     FScale     - frequency scale (1=Hz, 1e3=kHz, 1e6=MHz, 1e9=GHz)
+%
 %   H_Param Methods:
 %     H_Param    - constructor
 %
@@ -13,23 +20,25 @@ classdef H_Param < EMC.RF_Param
 
         % -------------------------------
         % H_Param constructor        
-        function obj = H_Param(freq, data, unitf, unit)
-            % Constructor
-            % obj = H_PARAM(freq, data, unitf, unit)
-            narginchk(0,4)
+        function obj = H_Param(freq, data, fscale)
+            % H_PARAM constructor
+            %   obj = RF_PARAM(freq, data, fscale)
+            %     freq  = frequency data [1 x Npoints]
+            %     data  = complex parameter data [Nports x Nports x Npoints]
+            %     fscale = frequency unit ['Hz','kHz','MHz', 'GHz']
+            %              of scale value: [1.0, 1.0e3, 1.0e6, 1.0e9]
+            %              default='Hz'=1.0
+            %
+            %   If no arguments are specified, an empty H_Param is created
 
-            if nargin<4
-                unit = 'complex';
-            elseif ~ischar(unit)
-                error('Unit must be a character vector')
-            end
-            
+            narginchk(0,3)
+
             if nargin<3
-                unitf = 'Hz';
-            elseif ischar(unit)
-                [~, unitf] = EMC.RF_Param.check_freq_unit(unitf);
+                fscale = 1;
+            elseif ischar(fscale) || isscalar(fscale)
+                [fscale, ~] = EMC.RF_Param.check_freq_unit(fscale);
             else
-                error('UnitF must be a character vector')
+                fscale = []; % will error out in RF_Param constructor
             end
             
             if nargin<1
@@ -45,13 +54,17 @@ classdef H_Param < EMC.RF_Param
                 error('H-Parameters only valid for 2-port networks')
             end
             
-            obj@EMC.RF_Param(freq, data, unitf, unit);
-        end
+            obj@EMC.RF_Param(freq, data, fscale);
+
+        end % H_Param constructor
         
     end % methods
 
     methods (Access=protected)
+
         function [type, unit_lbl] = get_plot_info(obj, ir, ic) %#ok<INUSL> 
+            % GET_PLOT_INFO gets the plot format and label for given row, col
+            %   [format, unit_lbl] = obj.GET_PLOT_INFO(row, col)
             i = (ir-1)*2+ic; % map 1-4
             switch i
                 case 1
@@ -65,7 +78,8 @@ classdef H_Param < EMC.RF_Param
             end
             type = 'lin';
         end
-    end
+
+    end % protected methods
 
 end
 

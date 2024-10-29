@@ -2,6 +2,13 @@
 %
 %   ABCD_PARAM is a class for holding ABCD-parameter data
 %
+%   ABDC_Param Properties:
+%     nPorts     - number of ports in the network
+%     nPoints    - number of frequency points in the parameter data
+%     Freq       - column vector of frequencies (in Hz)
+%     Data       - complex parameter data
+%     FScale     - frequency scale (1=Hz, 1e3=kHz, 1e6=MHz, 1e9=GHz)
+%
 %   ABCD_Param Methods:
 %     ABCD_Param    - constructor
 %
@@ -11,25 +18,25 @@ classdef ABCD_Param < EMC.RF_Param
 
     methods
 
-        % -------------------------------
-        % ABCD_Param constructor
-        function obj = ABCD_Param(freq, data, unitf, unit)
-            % Constructor
-            % obj = ABCD_PARAM(freq, data, unit_freq, unit)
-            narginchk(0,4)
+        function obj = ABCD_Param(freq, data, fscale)
+            % ABCD_PARAM constructor
+            %   obj = RF_PARAM(freq, data, fscale)
+            %     freq  = frequency data [1 x Npoints]
+            %     data  = complex parameter data [Nports x Nports x Npoints]
+            %     fscale = frequency unit ['Hz','kHz','MHz', 'GHz']
+            %              of scale value: [1.0, 1.0e3, 1.0e6, 1.0e9]
+            %              default='Hz'=1.0
+            %
+            %   If no arguments are specified, an empty ABCD_Param is created
 
-            if nargin<4
-                unit = 'complex';
-            elseif ~ischar(unit)
-                error('Unit must be a character vector')
-            end
+            narginchk(0,3)
 
             if nargin<3
-                unitf = 'Hz';
-            elseif ischar(unit)
-                [~, unitf] = EMC.RF_Param.check_freq_unit(unitf);
+                fscale = 1;
+            elseif ischar(fscale) || isscalar(fscale)
+                [fscale, ~] = EMC.RF_Param.check_freq_unit(fscale);
             else
-                error('UnitF must be a character vector')
+                fscale = []; % will error out in RF_Param constructor
             end
 
             if nargin<1
@@ -45,14 +52,20 @@ classdef ABCD_Param < EMC.RF_Param
                 error('ABCD-Parameters only valid for 2-port networks')
             end
 
-            obj@EMC.RF_Param(freq, data, unitf, unit);
-        end
+            obj@EMC.RF_Param(freq, data, fscale);
+
+        end % ABCD_Param constructor
 
     end % methods
 
 
     methods (Access=protected)
+
         function lbl = get_label(obj, ir, ic) %#ok<INUSL>
+            % GET_LABEL gets the display label for the given row, col
+            %   lbl = obj.GET_LABEL(row, col)
+            %
+            %   ABCD_Param get_label() will get the labels A, B, C, D
             ix = (ir-1)*2+ic;  % map it 1-4
             switch ix
                 case 1
@@ -66,7 +79,8 @@ classdef ABCD_Param < EMC.RF_Param
                 otherwise
                     lbl = '???';
             end
-        end
+        end % function get_label
+
     end % protected methods
 
 end

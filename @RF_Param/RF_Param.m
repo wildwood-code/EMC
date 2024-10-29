@@ -10,9 +10,7 @@
 %     nPoints    - number of frequency points in the parameter data
 %     Freq       - column vector of frequencies (in Hz)
 %     Data       - complex parameter data
-%     Unit       - magnitude unit
-%     UnitF      - frequency unit
-%     FreqHz     - frequency converted to Hz
+%     FScale     - frequency scale (1=Hz, 1e3=kHz, 1e6=MHz, 1e9=GHz)
 %
 %   RF_Param Methods:
 %     RF_Param   - constructor
@@ -34,13 +32,11 @@
 classdef RF_Param
 
     % TODO: improvements
-    %   remove Unit. Always store as 'complex'. Display unit is handled through get_plot_info()
     %   per-port impedance
     %   load latest Touchstone format
 
     properties (Dependent, Hidden)
         Type          % type of S-parameter
-        FreqHz        % frequency scaled to Hz [1 x nPoints]
     end % dependent, hidden properties
 
 
@@ -49,48 +45,42 @@ classdef RF_Param
         nPoints       % number of samples in the set
         Freq          % frequencies [1 x nPoints]
         Data          % complex data [nPorts x nPorts x nPoints]
-        UnitF         % frequency units
-        Unit          % magnitude units
+        FScale        % frequency scale (1=Hz, 1e3=kHz, 1e6=MHz, 1e9=GHz)
     end % set protected properties
-
-
-    properties (SetAccess = protected, Hidden)
-        Fscale        % frequency scaling
-    end % hidden, set protected properties
 
 
     methods
 
-        function obj = RF_Param(freq, data, unitf, unit)
+        function obj = RF_Param(freq, data, fscale)
             % RF_PARAM constructor
-            %   obj = RF_PARAM(freq, data, unitf, unit)
+            %   obj = RF_PARAM(freq, data, fscale)
             %     freq  = frequency data [1 x Npoints]
             %     data  = complex parameter data [Nports x Nports x Npoints]
-            %     unitf = frequency unit ['Hz','kHz','MHz', 'GHz']
+            %     fscale = frequency unit ['Hz','kHz','MHz', 'GHz']
+            %              of scale value: [1.0, 1.0e3, 1.0e6, 1.0e9]
+            %              default='Hz'=1.0
+            %
+            %   If no arguments are specified, an empty RF_Param is created
 
-            narginchk(0,4)
-
-            if nargin<4
-                unit = 'complex';
-            elseif ~ischar(unit)
-                error('Unit must be a character vector')
-            end
+            narginchk(0,3)
 
             if nargin<3
-                unitf = 'Hz';
-                fscale = 1;
-            elseif ischar(unitf)
-                [fscale, unitf] = EMC.RF_Param.check_freq_unit(unitf);
+                freq_scale = 1;
+            elseif ischar(fscale) || isscalar(fscale)
+                [freq_scale, ~] = EMC.RF_Param.check_freq_unit(fscale);
             else
-                error('UnitF must be a character vector')
+                freq_scale = [];
+            end
+
+            if isempty(freq_scale)
+                error('Invalid value for fscale')
             end
 
             if nargin<1
                 data = zeros(1,1,0);
                 freq = zeros(1,0);
             elseif nargin<2
-                NL = length(freq);
-                data = zeros(1,1,NL);
+                data = zeros(1,1,length(freq));
             end
 
             if ~isnumeric(data)
@@ -127,22 +117,16 @@ classdef RF_Param
             end
 
             obj.Data = data;
-            obj.UnitF = unitf;
-            obj.Unit = unit;
-            obj.Fscale = fscale;
+            obj.FScale = freq_scale;
         end % function RF_Param constructor
 
 
-        % -------------------------------
-        % RF_Param function get.FreqHz()
-        function freq = get.FreqHz(obj)
-            freq = obj.Freq*obj.Fscale;
-        end % function get.FreqHz
-
-        
-        % -------------------------------
-        % RF_Param function get.Type()
         function type = get.Type(obj)
+            % GET.TYPE  Get method for the RF_Param type
+            %   type = obj.Type
+            %
+            %   type output is a string representation of the RF_Param type
+            %   (e.g., 'S', 'Z', 'H', 'ABCD', etc.)
             type = class(obj);
             m = regexp(type, '^(?:[A-Z.]+\.)?([A-Z]{1,4})(?:_param)?$', 'tokens', 'ignorecase');
             if ~isempty(m)
@@ -164,24 +148,22 @@ classdef RF_Param
 
     methods (Access=protected)
 
-        % -------------------------------
-        % RF_Param function get_label()
         function lbl = get_label(obj, ir, ic)
+            % GET_LABEL gets the display label for the given row, col
+            %   lbl = obj.GET_LABEL(row, col)
+            %
+            %   Often overridden to give type-specific param names
             lbl = sprintf('%s%d%d', obj.Type, ir, ic);
         end % function get_label()
 
 
-        % -------------------------------
-        % RF_Param function get_plot_info()
-        % this function will be overloaded if specific plot types are required
-        function [type, unit_lbl] = get_plot_info(obj, ir, ic) %#ok<INUSD>
-            if strcmp(obj.Unit, 'complex')
-                type = 'dB'; % other options 'log' 'lin'
-                unit_lbl = 'dB';
-            else
-                type = 'lin';
-                unit_lbl = obj.Unit;
-            end
+        function [format, unit_lbl] = get_plot_info(obj, ir, ic) %#ok<INUSD>
+            % GET_PLOT_INFO gets the plot format and label for given row, col
+            %   [format, unit_lbl] = obj.GET_PLOT_INFO(row, col)
+            %
+            %   Often overridden to give type-specific plot format and label
+            format = 'dB'; % other options 'log' 'lin'
+            unit_lbl = 'dB';
         end % function get_plot_info()
 
     end % protected methods
@@ -197,7 +179,7 @@ classdef RF_Param
 
     methods (Static, Access=protected)
 
-        [fscale,unitf] = check_freq_unit(unitf)
+        [fscale,unit_freqscale] = check_freq_unit(unit_freqscale)
 
     end % protected static methods
 
